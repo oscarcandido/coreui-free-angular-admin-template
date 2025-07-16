@@ -1,0 +1,161 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong>Usuários</strong>
+      </c-card-header>
+      <c-card-body>
+        <div class="d-flex justify-content-end mb-3">
+          <button cButton color="primary" (click)="onCreateNew()">
+            <svg [cIcon]="icons.cilPlus"></svg>
+            Novo Usuário
+          </button>
+        </div>
+
+        <div *ngIf="loading" class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-2">Carregando usuários...</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+          <button cButton color="danger" class="ms-2" (click)="loadInitialData()">Tentar Novamente</button>
+        </div>
+
+        <div *ngIf="!loading && !errorMessage">
+          <table cTable hover responsive>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Email</th>
+                <th scope="col">Grupo</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <th scope="row">{{ user.id }}</th>
+                <td>{{ user.nome }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ getGrupoNome(user.idgrupo_usuarios) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="user.ativo ? 'text-bg-success' : 'text-bg-secondary'">
+                    {{ user.ativo ? 'Ativo' : 'Inativo' }}
+                  </span>
+                </td>
+                <td>
+                  <button cButton color="info" size="sm" (click)="onEdit(user)">
+                    <svg [cIcon]="icons.cilPencil"></svg> Editar
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="users.length === 0">
+                <td colspan="6" class="text-center text-medium-emphasis">Nenhum usuário encontrado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="showCrudModal" (visibleChange)="onVisibleChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle><svg [cIcon]="icons.cilUser"></svg> {{ isEditing ? 'Editar Usuário' : 'Novo Usuário' }}</h5>
+    <button cButtonClose (click)="onCloseCrudModal()"></button>
+  </c-modal-header>
+  <form cForm [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <c-modal-body>
+      <div class="mb-3">
+        <label cFormLabel for="nome">Nome Completo</label>
+        <input
+          cFormControl
+          id="nome"
+          type="text"
+          formControlName="nome"
+          placeholder="Nome do Usuário"
+          [ngClass]="{ 'is-invalid': f['nome'].touched && f['nome'].errors }"
+        />
+        <div *ngIf="f['nome'].touched && f['nome'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['nome'].errors['required']">O nome é obrigatório.</div>
+          <div *ngIf="f['nome'].errors['maxlength']">O nome não pode ter mais de 100 caracteres.</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label cFormLabel for="email">Email</label>
+        <input
+          cFormControl
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="email@exemplo.com"
+          [ngClass]="{ 'is-invalid': f['email'].touched && f['email'].errors }"
+        />
+        <div *ngIf="f['email'].touched && f['email'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['email'].errors['required']">O email é obrigatório.</div>
+          <div *ngIf="f['email'].errors['email']">Por favor, insira um email válido.</div>
+          <div *ngIf="f['email'].errors['maxlength']">O email não pode ter mais de 100 caracteres.</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label cFormLabel for="senha">Senha</label>
+        <input
+          cFormControl
+          id="senha"
+          type="password"
+          formControlName="senha"
+          placeholder="*******"
+          [ngClass]="{ 'is-invalid': f['senha'].touched && f['senha'].errors }"
+        />
+        <div *ngIf="f['senha'].touched && f['senha'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['senha'].errors['required'] && !isEditing">A senha é obrigatória para novos usuários.</div>
+          <div *ngIf="f['senha'].errors['minlength']">A senha deve ter no mínimo {{ f['senha'].errors['minlength']?.requiredLength }} caracteres.</div>
+          <div *ngIf="f['senha'].errors['maxlength']">A senha não pode ter mais de {{ f['senha'].errors['maxlength']?.requiredLength }} caracteres.</div>
+        </div>
+        <div class="form-text" *ngIf="isEditing">Deixe em branco para manter a senha atual.</div>
+      </div>
+
+      <div class="mb-3">
+        <label cFormLabel for="idgrupo_usuarios">Grupo de Usuário</label>
+        <select
+          cSelect
+          id="idgrupo_usuarios"
+          formControlName="idgrupo_usuarios"
+          [ngClass]="{ 'is-invalid': f['idgrupo_usuarios'].touched && f['idgrupo_usuarios'].errors }"
+        >
+          <option [ngValue]="null" disabled>Selecione um grupo</option>
+          <option *ngFor="let grupo of grupos" [ngValue]="grupo.id">{{ grupo.nome }}</option>
+        </select>
+        <div *ngIf="f['idgrupo_usuarios'].touched && f['idgrupo_usuarios'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['idgrupo_usuarios'].errors['required']">O grupo de usuário é obrigatório.</div>
+        </div>
+      </div>
+
+      <div class="mb-3" *ngIf="isEditing">
+        <c-form-check>
+          <input
+            cFormCheckInput
+            id="ativo"
+            type="checkbox"
+            formControlName="ativo"
+          />
+          <label cFormCheckLabel for="ativo">Usuário Ativo</label>
+        </c-form-check>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button cButton color="secondary" (click)="onCloseCrudModal()" type="button">Cancelar</button>
+      <button cButton color="primary" type="submit" [disabled]="userForm.invalid || loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        {{ isEditing ? 'Salvar Alterações' : 'Cadastrar' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>

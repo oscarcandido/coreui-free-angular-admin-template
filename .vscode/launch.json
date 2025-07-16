@@ -1,0 +1,69 @@
+// pop-frontend/.vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Angular: Frontend (Chrome)",
+            "type": "pwa-chrome", // Tipo para depuração de PWA (Progressive Web App) via Chrome.
+            "request": "launch",
+            "url": "http://localhost:4200", // URL onde seu Angular está rodando
+            "webRoot": "${workspaceFolder}", // Raiz do projeto Angular
+            "sourceMaps": true,
+            "runtimeArgs": [
+                "--remote-debugging-port=9222"
+            ],
+            // 'preLaunchTask' para garantir que o 'ng serve' esteja rodando
+            "preLaunchTask": "npm: start" // Assumindo que seu package.json tem "start": "ng serve"
+        },
+        {
+            "name": "Node.js: Backend (pop-control-api)",
+            "type": "pwa-node", // Tipo para depuração de PWA via Node.js
+            "request": "launch",
+            "program": "${workspaceFolder}/../pop-control-api/src/server.js", // Caminho para o arquivo principal do seu backend
+            "cwd": "${workspaceFolder}/../pop-control-api", // Diretório de trabalho do backend
+            "protocol": "inspector",
+            "sourceMaps": true,
+            "console": "integratedTerminal", // Onde a saída do backend será mostrada
+            "internalConsoleOptions": "neverOpen" // Opcional: evita que o console de depuração abra automaticamente
+        },
+        {
+            "name": "Fullstack: Frontend & Backend",
+            "type": "node", // Tipo genérico para configurações compostas
+            "request": "launch",
+            "preLaunchTask": "npm: start", // Inicia o frontend
+            "runtimeExecutable": "echo", // Não executa nada aqui, apenas para satisfazer o tipo
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/../pop-control-api/src/server.js", // Inicia o backend
+            "cwd": "${workspaceFolder}/../pop-control-api",
+            "console": "integratedTerminal",
+            "sourceMaps": true,
+            "internalConsoleOptions": "neverOpen",
+            "compounds": [ // Define uma depuração composta
+                {
+                    "name": "Launch Angular (Chrome)",
+                    "request": "launch",
+                    "type": "pwa-chrome",
+                    "url": "http://localhost:4200",
+                    "webRoot": "${workspaceFolder}",
+                    "sourceMaps": true,
+                    "runtimeArgs": [
+                        "--remote-debugging-port=9222"
+                    ]
+                },
+                {
+                    "name": "Node.js: Backend (pop-control-api)",
+                    "request": "launch",
+                    "type": "pwa-node",
+                    "program": "${workspaceFolder}/../pop-control-api/src/server.js",
+                    "cwd": "${workspaceFolder}/../pop-control-api",
+                    "protocol": "inspector",
+                    "sourceMaps": true,
+                    "console": "integratedTerminal",
+                    "internalConsoleOptions": "neverOpen"
+                }
+            ]
+        }
+    ]
+}

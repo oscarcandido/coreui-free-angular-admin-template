@@ -1,0 +1,97 @@
+<div class="bg-light min-vh-100 d-flex flex-row align-items-center">
+  <c-container>
+    <c-row class="justify-content-center">
+      <c-col [md]="8">
+        <c-card-group>
+          <c-card class="p-4">
+            <c-card-body>
+              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <h1>Login</h1>
+                <p class="text-medium-emphasis">Entre com sua conta</p>
+
+                <div class="mb-3">
+                  <c-input-group class="mb-3">
+                    <span cInputGroupText>
+                      <svg cIcon name="cilUser"></svg>
+                    </span>
+                    <input
+                      cFormControl
+                      id="email"
+                      type="email"
+                      placeholder="E-mail"
+                      formControlName="email"
+                      [ngClass]="{ 'is-invalid': f['email'].touched && f['email'].errors }"
+                    />
+                  </c-input-group>
+                  <div *ngIf="f['email'].touched && f['email'].errors" class="invalid-feedback d-block">
+                    <div *ngIf="f['email'].errors['required']">E-mail é obrigatório.</div>
+                    <div *ngIf="f['email'].errors['email']">E-mail inválido.</div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <c-input-group class="mb-4">
+                    <span cInputGroupText>
+                      <svg cIcon name="cilLockLocked"></svg>
+                    </span>
+                    <input
+                      cFormControl
+                      id="password"
+                      type="password"
+                      placeholder="Senha"
+                      formControlName="senha"
+                      [ngClass]="{ 'is-invalid': f['senha'].touched && f['senha'].errors }"
+                    />
+                  </c-input-group>
+                  <div *ngIf="f['senha'].touched && f['senha'].errors" class="invalid-feedback d-block">
+                    <div *ngIf="f['senha'].errors['required']">Senha é obrigatória.</div>
+                    <div *ngIf="f['senha'].errors['minlength']">A senha deve ter no mínimo 6 caracteres.</div>
+                  </div>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+                  {{ errorMessage }}
+                </div>
+
+                <c-row>
+                  <c-col [xs]="6">
+                    <button cButton class="px-4" color="primary" type="submit" [disabled]="loading || loginForm.invalid">
+                      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Entrar
+                    </button>
+                  </c-col>
+                  <c-col [xs]="6" class="text-right">
+                    <button cButton class="px-0" color="link" routerLink="/forgot-password">
+                      Esqueceu a senha?
+                    </button>
+                  </c-col>
+                </c-row>
+              </form>
+            </c-card-body>
+          </c-card>
+          <c-card class="text-white bg-primary py-5" *ngIf="false">
+            <c-card-body class="text-center">
+              <div>
+                <h2>Registrar</h2>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+                  eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <button
+                  cButton
+                  color="primary"
+                  class="mt-3"
+                  active
+                  tabindex="-1"
+                  routerLink="/register"
+                >
+                  Registrar Agora!
+                </button>
+              </div>
+            </c-card-body>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
+</div>
