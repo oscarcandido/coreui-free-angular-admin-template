@@ -1,0 +1,108 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong>Procedimentos Operacionais Padrão (POPs)</strong>
+      </c-card-header>
+      <c-card-body>
+        <div class="d-flex justify-content-end mb-3">
+          <button cButton color="primary" (click)="onCreateNewPop()">
+            <svg [cIcon]="icons.cilPlus"></svg>
+            Novo POP
+          </button>
+        </div>
+
+        <div *ngIf="loading" class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-2">Carregando POPs...</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+          <button cButton color="danger" class="ms-2" (click)="loadInitialData()">Tentar Novamente</button>
+        </div>
+
+        <div *ngIf="!loading && !errorMessage">
+          <table cTable hover responsive>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Código</th>
+                <th scope="col">Tipo de POP</th>
+                <th scope="col">Setor</th>
+                <th scope="col">Tarefa</th>
+                <th scope="col">Executante</th>
+                <th scope="col">Cadastrado por</th>
+                <th scope="col">Data Emissão</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let pop of pops">
+                <th scope="row">{{ pop.id }}</th>
+                <td>{{ pop.codigo }}</td>
+                <td>{{ pop.nome_tipo_pop }}</td>
+                <td>{{ pop.nome_setor }}</td>
+                <td>{{ pop.tarefa }}</td>
+                <td>{{ pop.executante }}</td>
+                <td>{{ pop.nome_usuario_cadastro }}</td>
+                <td>{{ pop.data_emissao | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="pop.ativo ? 'text-bg-success' : 'text-bg-secondary'">
+                    {{ pop.ativo ? 'Ativo' : 'Inativo' }}
+                  </span>
+                </td>
+                <td>
+                  <button cButton color="info" size="sm" (click)="onEditPop(pop)">
+                    <svg [cIcon]="icons.cilPencil"></svg> Editar
+                  </button>
+                  <button cButton color="danger" size="sm" class="ms-2" (click)="onDeleteConfirm(pop)">
+                    <svg [cIcon]="icons.cilTrash"></svg> Remover
+                  </button>
+                  <button
+                    cButton
+                    color="secondary"
+                    size="sm"
+                    class="ms-2"
+                    (click)="onManageRevisoes(pop)"
+                    [disabled]="!pop.id"
+                    cTooltip="Gerenciar Revisões"
+                    tooltipPlacement="top"
+                  >
+                    <svg [cIcon]="icons.cilList"></svg> Revisões
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="pops.length === 0">
+                <td colspan="10" class="text-center text-medium-emphasis">Nenhum POP encontrado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="showDeleteConfirmModal" (visibleChange)="onDeleteConfirmModalVisibleChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Confirmar Exclusão</h5>
+    <button cButtonClose (click)="onDeleteCancel()"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <p>Tem certeza que deseja remover o POP "<strong>{{ popToDelete?.codigo }} - {{ popToDelete?.tarefa }}</strong>"?</p>
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+      {{ errorMessage }}
+    </div>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="onDeleteCancel()">Cancelar</button>
+    <button cButton color="danger" (click)="onDelete()" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+      Remover
+    </button>
+  </c-modal-footer>
+</c-modal>

@@ -1,0 +1,129 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong>Tipos de POP</strong>
+      </c-card-header>
+      <c-card-body>
+        <div class="d-flex justify-content-end mb-3">
+          <button cButton color="primary" (click)="onCreateNew()">
+            <svg [cIcon]="icons.cilPlus"></svg>
+            Novo Tipo de POP
+          </button>
+        </div>
+
+        <div *ngIf="loading" class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-2">Carregando tipos de POP...</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+          <button cButton color="danger" class="ms-2" (click)="loadTiposPop()">Tentar Novamente</button>
+        </div>
+
+        <div *ngIf="!loading && !errorMessage">
+          <table cTable hover responsive>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tipo of tiposPop">
+                <th scope="row">{{ tipo.id }}</th>
+                <td>{{ tipo.nome }}</td>
+                <td>
+                  <span class="badge" [ngClass]="tipo.ativo ? 'text-bg-success' : 'text-bg-secondary'">
+                    {{ tipo.ativo ? 'Ativo' : 'Inativo' }}
+                  </span>
+                </td>
+                <td>
+                  <button cButton color="info" size="sm" (click)="onEdit(tipo)">
+                    <svg [cIcon]="icons.cilPencil"></svg> Editar
+                  </button>
+                  <button cButton color="danger" size="sm" class="ms-2" (click)="onDeleteConfirm(tipo)">
+                    <svg [cIcon]="icons.cilTrash"></svg> Remover
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="tiposPop.length === 0">
+                <td colspan="4" class="text-center text-medium-emphasis">Nenhum tipo de POP encontrado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<c-modal [visible]="showCrudModal" (visibleChange)="onCrudModalVisibleChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ isEditing ? 'Editar Tipo de POP' : 'Novo Tipo de POP' }}</h5>
+    <button cButtonClose (click)="onCloseCrudModal()"></button>
+  </c-modal-header>
+  <form cForm [formGroup]="tipoPopForm" (ngSubmit)="onSubmit()">
+    <c-modal-body>
+      <div class="mb-3">
+        <label cFormLabel for="nome">Nome</label>
+        <input
+          cFormControl
+          id="nome"
+          type="text"
+          formControlName="nome"
+          placeholder="Nome do Tipo de POP"
+          [ngClass]="{ 'is-invalid': f['nome'].touched && f['nome'].errors }"
+        />
+        <div *ngIf="f['nome'].touched && f['nome'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['nome'].errors['required']">O nome é obrigatório.</div>
+          <div *ngIf="f['nome'].errors['maxlength']">O nome não pode ter mais de 45 caracteres.</div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <c-form-check>
+          <input
+            cFormCheckInput
+            id="ativo"
+            type="checkbox"
+            formControlName="ativo"
+          />
+          <label cFormCheckLabel for="ativo">Ativo</label>
+        </c-form-check>
+      </div>
+    </c-modal-body>
+    <c-modal-footer>
+      <button cButton color="secondary" (click)="onCloseCrudModal()" type="button">Cancelar</button>
+      <button cButton color="primary" type="submit" [disabled]="tipoPopForm.invalid || loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        {{ isEditing ? 'Salvar Alterações' : 'Cadastrar' }}
+      </button>
+    </c-modal-footer>
+  </form>
+</c-modal>
+
+<c-modal [visible]="showDeleteConfirmModal" (visibleChange)="onDeleteConfirmModalVisibleChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Confirmar Exclusão</h5>
+    <button cButtonClose (click)="onDeleteCancel()"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <p>Tem certeza que deseja remover o Tipo de POP "<strong>{{ tipoPopToDelete?.nome }}</strong>"?</p>
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+      {{ errorMessage }}
+    </div>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="onDeleteCancel()">Cancelar</button>
+    <button cButton color="danger" (click)="onDelete()" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+      Remover
+    </button>
+  </c-modal-footer>
+</c-modal>

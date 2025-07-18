@@ -14,7 +14,7 @@ export interface UsuarioSetor {
   providedIn: 'root'
 })
 export class UsuarioSetorService {
-  private apiUrl = `${environment.apiUrl}/usuario-setor`;  
+  private apiUrl = `${environment.apiUrl}/usuario-setores`;  
 
   constructor(private http: HttpClient) { }
 
@@ -25,7 +25,7 @@ export class UsuarioSetorService {
    * @returns Um Observable de um array de UsuarioSetor.
    */
   getAssociacoesPorUsuario(idUsuario: number): Observable<UsuarioSetor[]> {
-    return this.http.get<UsuarioSetor[]>(`${this.apiUrl}?idusuario=${idUsuario}`);
+    return this.http.get<UsuarioSetor[]>(`${this.apiUrl}/?idusuario=${idUsuario}`);
   }
 
   /**

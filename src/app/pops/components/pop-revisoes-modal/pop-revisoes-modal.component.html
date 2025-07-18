@@ -1,0 +1,114 @@
+<c-modal [visible]="visible" (visibleChange)="visibleChange.emit($event)" size="lg" scrollable>
+  <c-modal-header>
+    <h5 cModalTitle>
+      <svg [cIcon]="icons.cilPencil"></svg> Gerenciar Revisões do POP:
+      <strong>{{ popCodigo }}</strong> - {{ popTarefa }}
+    </h5>
+    <button cButtonClose (click)="onCloseModal()"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <div *ngIf="loading" class="text-center my-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2">Carregando revisões...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong><svg [cIcon]="icons.cilPlus"></svg> Adicionar Nova Revisão</strong>
+      </c-card-header>
+      <c-card-body>
+        <form cForm [formGroup]="revisaoForm" (ngSubmit)="onSubmitRevisao()">
+          <c-row class="g-3">
+            <c-col md="6">
+              <label cFormLabel for="idusuario_cadastro">Cadastrado por</label>
+              <select
+                cSelect
+                id="idusuario_cadastro"
+                formControlName="idUser_cadastro"
+                [ngClass]="{ 'is-invalid': f['idUser_cadastro'].touched && f['idUser_cadastro'].errors }"
+              >
+                <option [ngValue]="null" disabled>Selecione um usuário</option>
+                <option *ngFor="let usuario of Users" [ngValue]="usuario.id">{{ usuario.nome }}</option>
+              </select>
+              <div *ngIf="f['idUser_cadastro'].touched && f['idUser_cadastro'].errors" class="invalid-feedback d-block">
+                <div *ngIf="f['idUser_cadastro'].errors['required']">O usuário é obrigatório.</div>
+              </div>
+            </c-col>
+            <c-col md="12">
+              <label cFormLabel for="descricao">Descrição / Motivo da Revisão (Opcional)</label>
+              <textarea
+                cFormControl
+                id="descricao"
+                formControlName="descricao"
+                rows="3"
+                placeholder="Descreva as alterações ou o motivo desta revisão."
+                maxLength="500"
+                [ngClass]="{ 'is-invalid': f['descricao'].touched && f['descricao'].errors }"
+              ></textarea>
+              <div *ngIf="f['descricao'].touched && f['descricao'].errors" class="invalid-feedback d-block">
+                <div *ngIf="f['descricao'].errors['maxlength']">A descrição não pode ter mais de 500 caracteres.</div>
+              </div>
+            </c-col>
+          </c-row>
+          <div class="d-flex justify-content-end mt-3">
+            <button cButton color="primary" type="submit" [disabled]="revisaoForm.invalid || loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Criar Nova Revisão
+            </button>
+          </div>
+        </form>
+      </c-card-body>
+    </c-card>
+
+    <c-card class="mb-4">
+      <c-card-header>
+        <strong><svg [cIcon]="icons.cilDescription"></svg> Histórico de Revisões</strong>
+      </c-card-header>
+      <c-card-body>
+        <div *ngIf="revisoes.length === 0 && !loading">
+          <p class="text-center text-medium-emphasis">Nenhuma revisão encontrada para este POP.</p>
+        </div>
+
+        <table cTable hover responsive *ngIf="revisoes.length > 0 && !loading">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Data da Revisão</th>
+              <th scope="col">Cadastrado por</th>
+              <th scope="col">Descrição</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let revisao of revisoes">
+              <th scope="row">R{{ revisao.numero }}</th>
+              <td>{{ revisao.data_revisao | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ revisao.nome_usuario_cadastro || getNomeUser(revisao.idusuario_cadastro?revisao.idusuario_cadastro:0) }}</td>
+              <td>{{ revisao.descricao || 'Sem descrição' }}</td>
+              <td>
+                <span class="badge" [ngClass]="revisao.vigente ? 'text-bg-success' : 'text-bg-secondary'"
+                  cTooltip="{{ revisao.vigente ? 'Esta é a revisão atualmente vigente.' : 'Esta revisão foi substituída.' }}"
+                  tooltipPlacement="top"
+                >
+                  <svg [cIcon]="revisao.vigente ? icons.cilCheckCircle : icons.cilWarning"></svg>
+                  {{ revisao.vigente ? 'Vigente' : 'Antiga' }}
+                </span>
+                <span *ngIf="!revisao.ativo" class="badge text-bg-danger ms-2">Inativo</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </c-card-body>
+    </c-card>
+
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="onCloseModal()">Fechar</button>
+  </c-modal-footer>
+</c-modal>

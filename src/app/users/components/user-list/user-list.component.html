@@ -51,6 +51,18 @@
                   <button cButton color="info" size="sm" (click)="onEdit(user)">
                     <svg [cIcon]="icons.cilPencil"></svg> Editar
                   </button>
+                  <button
+                    cButton
+                    color="secondary"
+                    size="sm"
+                    class="ms-2"
+                    (click)="openSetoresModal(user)"
+                    [disabled]="!user.id"
+                    cTooltip="Gerenciar Setores"
+                    tooltipPlacement="top"
+                  >
+                    <svg [cIcon]="icons.cilSettings"></svg> Setores
+                  </button>
                 </td>
               </tr>
               <tr *ngIf="users.length === 0">
@@ -123,18 +135,18 @@
       </div>
 
       <div class="mb-3">
-        <label cFormLabel for="idgrupo_usuarios">Grupo de Usuário</label>
+        <label cFormLabel for="idGrupoUsuario">Grupo de Usuário</label>
         <select
           cSelect
-          id="idgrupo_usuarios"
-          formControlName="idgrupo_usuarios"
-          [ngClass]="{ 'is-invalid': f['idgrupo_usuarios'].touched && f['idgrupo_usuarios'].errors }"
+          id="idGrupoUsuario"
+          formControlName="idGrupoUsuario"
+          [ngClass]="{ 'is-invalid': f['idGrupoUsuario'].touched && f['idGrupoUsuario'].errors }"
         >
           <option [ngValue]="null" disabled>Selecione um grupo</option>
           <option *ngFor="let grupo of grupos" [ngValue]="grupo.id">{{ grupo.nome }}</option>
         </select>
-        <div *ngIf="f['idgrupo_usuarios'].touched && f['idgrupo_usuarios'].errors" class="invalid-feedback d-block">
-          <div *ngIf="f['idgrupo_usuarios'].errors['required']">O grupo de usuário é obrigatório.</div>
+        <div *ngIf="f['idGrupoUsuario'].touched && f['idGrupoUsuario'].errors" class="invalid-feedback d-block">
+          <div *ngIf="f['idGrupoUsuario'].errors['required']">O grupo de usuário é obrigatório.</div>
         </div>
       </div>
 
@@ -159,3 +171,11 @@
     </c-modal-footer>
   </form>
 </c-modal>
+
+<app-user-setores-modal
+  [visible]="showSetoresModal"
+  [userId]="selectedUserForSetores?.id"
+  [userName]="selectedUserForSetores?.nome"
+  (visibleChange)="showSetoresModal = $event"
+  (onClose)="onCloseSetoresModal()"
+></app-user-setores-modal>

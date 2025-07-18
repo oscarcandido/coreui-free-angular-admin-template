@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/components/login/login.component';
 import { authGuard } from './auth/guards/auth.guard';
-
+import { PopListComponent } from './pops/components/pop-list/pop-list.component';
 export const routes: Routes = [
   {
     path: '',
@@ -31,7 +31,14 @@ export const routes: Routes = [
       { // <-- Adicione esta nova rota para Cadastros
         path: 'cadastro',
         loadChildren: () => import('./views/cadastro/cadastro.routes').then((m) => m.routes)
-      }
+      },
+      {
+        path: 'pops', // Esta será a URL: /pops
+        component: PopListComponent, // O componente que será carregado
+        data: {
+          title: 'Procedimentos Operacionais Padrão' // Título para sua aplicação (ex: aba do navegador, menu)
+        }
+      }      
     ]
   },
   {
